@@ -30,7 +30,7 @@ function dateValidate (string) {
     let day = parseInt(string.slice(8,10));
         if (year >= 2016 && month >=1 && month <= 12 && day >= 1 && day <= 31 && string.length === 10) {
             return true;
-        } else return false;
+        } return false;
    }
 function assignIndex(string) {
     if (string.indexOf("login") !== -1) {
@@ -42,35 +42,35 @@ function assignIndex(string) {
     }
 }
     
-function splitValidSpit(string, i) {
+function splitValidSpit(string, indexOfType) {
    let recordSeparator = string.indexOf("=");
    let validRecord = string.substring(recordSeparator+1);
-      if (i === 0 && loginValidate(validRecord)) {
+      if (indexOfType === 0 && loginValidate(validRecord)) {
             return validRecord;
-      } else if (i === 1 && passValidate(validRecord)) {
+      } else if (indexOfType === 1 && passValidate(validRecord)) {
             return validRecord;
-      } else if (i === 2 && dateValidate(validRecord)) { 
+      } else if (indexOfType === 2 && dateValidate(validRecord)) { 
             return validRecord; 
       }
     }
 
 function adaptOldData (database) {
-    let splitArray = database.split(',');
-    let newOrderArray = [];
-    while (splitArray.length > 0) {
-        let string = splitArray.pop();
-        let reorderedArray = [];
-        let temp = string.split(';');
-            for (k = 0; k < temp.length; k++) {
-            let stringTemp = temp[k];
-            let index = assignIndex(stringTemp);
-            reorderedArray[index] = splitValidSpit(stringTemp, index);
+    let arrayOfRecords = database.split(',');
+    let newArrayDatabase = [];
+    while (arrayOfRecords.length > 0) {
+        let separateRecordString = arrayOfRecords.pop();
+        let reorderedAndValidAttrArray = [];
+        let arrayOfRecordAttribures = separateRecordString.split(';');
+            for (k = 0; k < arrayOfRecordAttribures.length; k++) {
+            let singleAttributeString = arrayOfRecordAttribures[k];
+            let attrTypeAndOrderIndex = assignIndex(singleAttributeString);
+            reorderedAndValidAttrArray[attrTypeAndOrderIndex] = splitValidSpit(singleAttributeString, attrTypeAndOrderIndex);
             }
-        if (reorderedArray[0] !== undefined && reorderedArray[1] !== undefined && reorderedArray[2] !== undefined) {
-        newOrderArray.unshift(reorderedArray.join(","));
+        if (reorderedAndValidAttrArray[0] !== undefined && reorderedAndValidAttrArray[1] !== undefined && reorderedAndValidAttrArray[2] !== undefined) {
+        newArrayDatabase.unshift(reorderedAndValidAttrArray.join(","));
         }
     }
-    return newOrderArray.join('\n');
+    return newArrayDatabase.join('\n');
 }
 
-console.log(adaptOldData(oldDatabase));
+adaptOldData(oldDatabase);
