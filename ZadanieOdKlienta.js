@@ -1,57 +1,31 @@
 let oldDatabase = 'login=marian12;password=jaromir1,date=2016-12-24;login=janusz422;password=mypassword772,login=witek33;password=mojehaslo23;date=2014-02-54,password=wincenty;login=asdad22;date=2017-12-12';
 
-function loginValidate (string) {
-    let iCount = 0;
-    for (iIndex in string) {
-        if (!isNaN(parseInt(string[iIndex]))) {
-            iCount++;
+function stringHasNumberValidation (string, howManyNeeded) {
+    let numbersInString = 0;
+    for (letter in string) {
+        if (!isNaN(parseInt(string[letter]))) {
+            numbersInString++;
+            if (numbersInString >= howManyNeeded) {
+                return true;
+            }
         }
     }
-    if (string.length > 0 && iCount >= 2) {
-        return true; }
-        return false;
-    }
-
-function passValidate (string) {
-    let iCount = 0;
-    for (iIndex in string) {
-        if (!isNaN(parseInt(string[iIndex]))) {
-            iCount++;
-        }
-    }
-    if (string.length > 0 && iCount >= 1) {
-        return true; }
-        return false;
+    return false;
     }
     
 function dateValidate (string) {
     let year = parseInt(string.slice(0,4));
-    let month = parseInt(string.slice(5,7));
-    let day = parseInt(string.slice(8,10));
-        if (year >= 2016 && month >=1 && month <= 12 && day >= 1 && day <= 31 && string.length === 10) {
-            return true;
-        } return false;
+    return year >= 2016;
    }
-function assignIndex(string) {
-    if (string.indexOf("login") !== -1) {
-        return 0;
-    }  else if (string.indexOf("password") !== -1) {
-        return 1;
-    } else if (string.indexOf("date") !== -1) {
-        return 2;
-    }
-}
     
-function splitValidSpit(string, indexOfType) {
-   let recordSeparator = string.indexOf("=");
-   let validRecord = string.substring(recordSeparator+1);
-      if (indexOfType === 0 && loginValidate(validRecord)) {
-            return validRecord;
-      } else if (indexOfType === 1 && passValidate(validRecord)) {
-            return validRecord;
-      } else if (indexOfType === 2 && dateValidate(validRecord)) { 
-            return validRecord; 
-      }
+function extractValue(attributes, propertyName) {
+    for (let i = 0; i < attributes.length; i++) {
+        let attributeKeyValue = attributes[i].split('=');
+        if(attributeKeyValue[0] === propertyName) {
+            return attributeKeyValue[1];
+        }
+    }
+    return null;
     }
 
 function adaptOldData (database) {
@@ -59,15 +33,12 @@ function adaptOldData (database) {
     let newArrayDatabase = [];
     while (arrayOfRecords.length > 0) {
         let separateRecordString = arrayOfRecords.pop();
-        let reorderedAndValidAttrArray = [];
         let arrayOfRecordAttribures = separateRecordString.split(';');
-            for (k = 0; k < arrayOfRecordAttribures.length; k++) {
-            let singleAttributeString = arrayOfRecordAttribures[k];
-            let attrTypeAndOrderIndex = assignIndex(singleAttributeString);
-            reorderedAndValidAttrArray[attrTypeAndOrderIndex] = splitValidSpit(singleAttributeString, attrTypeAndOrderIndex);
-            }
-        if (reorderedAndValidAttrArray[0] !== undefined && reorderedAndValidAttrArray[1] !== undefined && reorderedAndValidAttrArray[2] !== undefined) {
-        newArrayDatabase.unshift(reorderedAndValidAttrArray.join(","));
+        let login = extractValue(arrayOfRecordAttribures, 'login');
+        let password = extractValue(arrayOfRecordAttribures, 'password');
+        let date = extractValue(arrayOfRecordAttribures, 'date');
+        if (stringHasNumberValidation(login,1) && stringHasNumberValidation(password,2) && date != null && dateValidate(date)) {
+            newArrayDatabase.unshift(`${login},${password},${date}`);
         }
     }
     return newArrayDatabase.join('\n');
