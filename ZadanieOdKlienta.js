@@ -1,7 +1,5 @@
 let oldDatabase = 'login=marian12;password=jaromir1,date=2016-12-24;login=janusz422;password=mypassword772,login=witek33;password=mojehaslo23;date=2014-02-54,password=wincenty;login=asdad22;date=2017-12-12';
 
-let globalIndex = 0;
-
 function loginValidate (string) {
     let iCount = 0;
     for (iIndex in string) {
@@ -34,20 +32,26 @@ function dateValidate (string) {
             return true;
         } else return false;
    }
-
-    function splitValidSpit(string) {
-       let recordSeparator = string.indexOf("=");
-       let validRecord = string.substring(recordSeparator+1);
-        if (string.indexOf("login") !== -1 && loginValidate(validRecord)) {
-              globalIndex = 0;
-              return validRecord;
-        } else if (string.indexOf("password") !== -1 && passValidate(validRecord)) {
-              globalIndex = 1;
-              return validRecord;
-        } else if (string.indexOf("date") !== -1 && dateValidate(validRecord)) { 
-              globalIndex = 2;
-              return validRecord; 
-        }
+function assignIndex(string) {
+    if (string.indexOf("login") !== -1) {
+        return 0;
+    }  else if (string.indexOf("password") !== -1) {
+        return 1;
+    } else if (string.indexOf("date") !== -1) {
+        return 2;
+    }
+}
+    
+function splitValidSpit(string, i) {
+   let recordSeparator = string.indexOf("=");
+   let validRecord = string.substring(recordSeparator+1);
+      if (i === 0 && loginValidate(validRecord)) {
+            return validRecord;
+      } else if (i === 1 && passValidate(validRecord)) {
+            return validRecord;
+      } else if (i === 2 && dateValidate(validRecord)) { 
+            return validRecord; 
+      }
     }
 
 function adaptOldData (database) {
@@ -59,11 +63,10 @@ function adaptOldData (database) {
         let temp = string.split(';');
             for (k = 0; k < temp.length; k++) {
             let stringTemp = temp[k];
-            let result = splitValidSpit(stringTemp);
-            reorderedArray[globalIndex] = result;
+            let index = assignIndex(stringTemp);
+            reorderedArray[index] = splitValidSpit(stringTemp, index);
             }
-        globalIndex = 0;
-        if (reorderedArray[0] !== undefined > 0 && reorderedArray[1] !== undefined && reorderedArray[2] !== undefined) {
+        if (reorderedArray[0] !== undefined && reorderedArray[1] !== undefined && reorderedArray[2] !== undefined) {
         newOrderArray.unshift(reorderedArray.join(","));
         }
     }
